@@ -1,0 +1,105 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.2"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "vulkan_rote_memory_test",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "main::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-main-Debug-7ac8a74e740db7393fdc.json",
+					"name" : "main",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "min_validation::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-min_validation-Debug-96d41e9c00c6893ce366.json",
+					"name" : "min_validation",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "setup_instance::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-setup_instance-Debug-c3a808d1d7c200646ff2.json",
+					"name" : "setup_instance",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "setup_validation_layers::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-setup_validation_layers-Debug-99bf04e8ff012fca94e2.json",
+					"name" : "setup_validation_layers",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "setup_window::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-setup_window-Debug-21a4e6e6ae8452eea69c.json",
+					"name" : "setup_window",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test-Debug-3daa9eed0fe9c3a199c5.json",
+					"name" : "test",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug",
+		"source" : "/Users/mr.leaf/CLionProjects/vulkan_rote_memory_test"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}
