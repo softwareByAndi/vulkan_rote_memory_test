@@ -15,7 +15,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <optional>
 
 #define LOG_SUCCESS std::cout << "  - SUCCESS" << std::endl << std::endl
 #define LOG_FAILURE std::cout << "  - FAILURE" << std::endl << std::endl
@@ -28,10 +27,10 @@
 #define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 #define macFLAG VK_KHR_portability_enumeration
 VkInstance instance;
-std::vector<const char*> reqEXT = {
+std::vector<const char*> instanceEXT = {
   macEXT
 };
-std::vector<const char*> reqLAY = {
+std::vector<const char*> instanceLAY = {
   "VK_LAYER_KHRONOS_validation"
 };
 
@@ -52,10 +51,10 @@ int main() {
     info.pNext = nullptr;
     info.flags |= macFLAG;
     info.pApplicationInfo = &ai;
-    info.enabledLayerCount = reqLAY.size();
-    info.ppEnabledLayerNames = reqLAY.data();
-    info.enabledExtensionCount = reqEXT.size();
-    info.ppEnabledExtensionNames = reqEXT.data();
+    info.enabledLayerCount = instanceLAY.size();
+    info.ppEnabledLayerNames = instanceLAY.data();
+    info.enabledExtensionCount = instanceEXT.size();
+    info.ppEnabledExtensionNames = instanceEXT.data();
 
     auto result = vkCreateInstance(&info, nullptr, &instance);
     if (result != VK_SUCCESS) {
