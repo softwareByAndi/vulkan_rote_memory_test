@@ -60,7 +60,6 @@ int main() {
     LOG_SUCCESS;
   }
 
-
   {
     print("SELECTING PHYSICAL DEVICE");
     uint32_t count = 0;
@@ -71,41 +70,26 @@ int main() {
       FAIL("failed to find a device");
     }
     physicalDevice = devices[0];
-    LOG_SUCCESS;
-
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
     vkGetPhysicalDeviceFeatures(physicalDevice, &features);
-    const bool isCPU = properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU;
-    const bool isGPU = properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
-                       || properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU
-                       || properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU;
-    std::string deviceType = "OTHER";
-    if (isCPU) deviceType = "CPU";
-    if (isGPU) deviceType = "GPU";
-    std::cout << "> " << properties.deviceName << std::endl;
-    std::cout << "  - deviceType : " << deviceType << std::endl;
-    std::cout << "  - geometryShader : " << features.geometryShader << std::endl;
+    const auto GPUFlags = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU | VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU | VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+    const bool isGPU = (properties.deviceType & GPUFlags) > 0;
     if (!isGPU) {
       FAIL("selected device is not a GPU");
     }
-    NEWLINE;
-  }
-
-  {
-    print("QUEUE FAMILIES");
-    uint32_t count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
     queueFamilies.resize(count);
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, queueFamilies.data());
     if (queueFamilies.empty()) {
-      FAIL("selected device doesn't have any queues...");
+      FAIL("selected device has no queues...");
     }
-    for (const auto & family : queueFamilies) {
-      const auto supportsGraphics = family.queueFlags & VK_QUEUE_GRAPHICS_BIT;
-      std::cout << "  - queue count : " << family.queueCount << std::endl;
-      std::cout << "  - supports graphics : " << supportsGraphics << std::endl;
-    }
+    queueFamilyIndex = 0;
     LOG_SUCCESS;
+  }
+
+  {
+    print("CREATING VIRTUAL DEVICE");
+
   }
 
 

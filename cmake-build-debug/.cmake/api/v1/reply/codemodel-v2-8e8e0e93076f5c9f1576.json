@@ -20,7 +20,8 @@
 						2,
 						3,
 						4,
-						5
+						5,
+						6
 					]
 				}
 			],
@@ -40,7 +41,8 @@
 						2,
 						3,
 						4,
-						5
+						5,
+						6
 					]
 				}
 			],
@@ -55,29 +57,36 @@
 				},
 				{
 					"directoryIndex" : 0,
+					"id" : "setup_device::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-setup_device-Debug-35c9c8ee9e287e3ff3ef.json",
+					"name" : "setup_device",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
 					"id" : "setup_instance::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-setup_instance-Debug-5dfa8506d3bce66c2a1f.json",
+					"jsonFile" : "target-setup_instance-Debug-cadbee836bfd8a653995.json",
 					"name" : "setup_instance",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "setup_physical_device::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-setup_physical_device-Debug-c62e76a30d870ba0acea.json",
+					"jsonFile" : "target-setup_physical_device-Debug-be44b357103493ba6367.json",
 					"name" : "setup_physical_device",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "setup_validation_layers::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-setup_validation_layers-Debug-4e58b7708f1fd3b0f487.json",
+					"jsonFile" : "target-setup_validation_layers-Debug-eb331a2daea2d29d7ead.json",
 					"name" : "setup_validation_layers",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "setup_window::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-setup_window-Debug-25f2e4efc6907736ce5b.json",
+					"jsonFile" : "target-setup_window-Debug-af964fa053dfa7740ebc.json",
 					"name" : "setup_window",
 					"projectIndex" : 0
 				},

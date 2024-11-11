@@ -32,6 +32,7 @@ foreach (NAME
         instance
         validation_layers
         physical_device
+        device
 )
     add_executable(
             "setup_${NAME}"

@@ -238,6 +238,39 @@ build setup_physical_device: CXX_EXECUTABLE_LINKER__setup_physical_device_Debug 
   TARGET_FILE = setup_physical_device
   TARGET_PDB = setup_physical_device.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target setup_device
+
+
+#############################################
+# Order-only phony target for setup_device
+
+build cmake_object_order_depends_target_setup_device: phony || .
+
+build CMakeFiles/setup_device.dir/src/examples/setup/device/run.cpp.o: CXX_COMPILER__setup_device_unscanned_Debug /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/src/examples/setup/device/run.cpp || cmake_object_order_depends_target_setup_device
+  DEP_FILE = CMakeFiles/setup_device.dir/src/examples/setup/device/run.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/mr.leaf/CLionProjects/vulkan_rote_memory_test -I/opt/homebrew/include -isystem /usr/local/include
+  OBJECT_DIR = CMakeFiles/setup_device.dir
+  OBJECT_FILE_DIR = CMakeFiles/setup_device.dir/src/examples/setup/device
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target setup_device
+
+
+#############################################
+# Link the executable setup_device
+
+build setup_device: CXX_EXECUTABLE_LINKER__setup_device_Debug CMakeFiles/setup_device.dir/src/examples/setup/device/run.cpp.o | /usr/local/lib/libvulkan.dylib /opt/homebrew/lib/libglfw.3.3.dylib
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk
+  LINK_LIBRARIES = -Wl,-rpath,/usr/local/lib  /usr/local/lib/libvulkan.dylib  /opt/homebrew/lib/libglfw.3.3.dylib
+  OBJECT_DIR = CMakeFiles/setup_device.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = setup_device
+  TARGET_PDB = setup_device.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -272,7 +305,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug
 
-build all: phony main test setup_window setup_instance setup_validation_layers setup_physical_device
+build all: phony main test setup_window setup_instance setup_validation_layers setup_physical_device setup_device
 
 # =============================================================================
 # Built-in targets
