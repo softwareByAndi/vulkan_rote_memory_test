@@ -11,17 +11,17 @@ retain the names of flags, functions, and types so that the render can be writte
 
 ## PLAN 
 1. break the renderer into steps of ~50 - 100 lines of code
-2.  start each session with a blank file 
+2.  start each session with a blank file  
 	a. re-code the previous steps from scratch until you reach the current step
-3. start memorizing the current step *- this will likely span 2 sessions - one to learn & implement the material, and another session to simplify and memorize it.*
-	a. go through the vulkan tutorial for the current step and implement the step in this session's implementation
-	b. once the code is working, clean and simplify the code so that the sections related to the current step are easily identified
-	c. write & re-write the current step until it can be done by heart 
-4. repeat steps 2 & 3 until each step has been completed and a full vulkan renderer can be written from scratch
-	- the expected progress is one step every 3 sessions
-		- one session learn & implement new step
-		- one session clean and memorize step
-		- one session to re-write code from scratch including new step (will probably take 3 tries)
+4. start memorizing the current step *- this will likely span 2 sessions - one to learn & implement the material, and another session to simplify and memorize it.*  
+	a. go through the vulkan tutorial for the current step and implement the step in this session's implementation  
+	b. once the code is working, clean and simplify the code so that the sections related to the current step are easily identified  
+	c. write & re-write the current step until it can be done by heart  
+5. repeat steps 2 & 3 until each step has been completed and a full vulkan renderer can be written from scratch  
+	- the expected progress is one step every 3 sessions  
+		- one session to learn & implement new step  
+		- one session to clean, simplify, and memorize the step  
+		- one session to re-write code from scratch including new step (will probably take 3 tries)  
 
 *each session is expected to span ~1 hours*
 ```
@@ -31,8 +31,9 @@ retain the names of flags, functions, and types so that the render can be writte
 
 # notes and updates
 
-### CURRENT STEP (physical device)
-as far as I can tell, this is working. It's slow, but that's because I've re-written the entire program over a dozen times by now, and I can write previous steps with ease. As I'm progressing, I'm realizing how simple each of the steps actually are - when validations, and abstractions are ripped away, each step is really simple and easy to remember. 
+### physical device - (current step at time of note)
+As far as I can tell, this is working. It's slow, but that's because I've re-written the entire program over a dozen times by now, and I can write previous steps with ease.  
+As I'm progressing, I'm realizing how simple each of the steps actually are - when validations, and abstractions are ripped away, each step is really simple and easy to remember. 
 
 # TASKS
 - [x] CMakeLists
@@ -59,9 +60,6 @@ as far as I can tell, this is working. It's slow, but that's because I've re-wri
 		- [ ] rendering and presentation
 		- [ ] frames in flight
 	- [ ] swap chain recreation
-
-*CURRENT PROGRESS END*
-
 - [ ] vertex buffers
 	- [ ] vertex input description
 	- [ ] vertex buffer creation
