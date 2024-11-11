@@ -30,7 +30,9 @@ retain the names of flags, functions, and types so that the render can be writte
 ```
 
 # notes and updates
-- *CURRENT STEP (physical device)* - as far as I can tell, this is working. It's slow, but that's because I've re-written the entire program over a dozen times by now, and I can write previous steps with ease. As I'm progressing, I'm realizing how simple each of the steps actually are - when validations, and abstractions are ripped away, each step is really simple and easy to remember. 
+
+### CURRENT STEP (physical device)
+as far as I can tell, this is working. It's slow, but that's because I've re-written the entire program over a dozen times by now, and I can write previous steps with ease. As I'm progressing, I'm realizing how simple each of the steps actually are - when validations, and abstractions are ripped away, each step is really simple and easy to remember. 
 
 # TASKS
 - [x] CMakeLists
