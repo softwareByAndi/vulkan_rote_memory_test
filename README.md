@@ -1,8 +1,15 @@
 # description
-*PROBLEM STATEMENT* - I keep forgetting the how the previous steps were implemented while building the renderer, and it makes it impossible to figure out how to refactor the api to add new functionality.
-*MINIMUM GOAL* - retain enough basic information about each step to re-write a basic renderer from scratch using documentation and auto-complete *(in a supplemental assistance capacity)*.
-*SUPER GOAL* - retain the names of flags, functions, and types so that the render can be written from scratch without the use of documentation or auto-complete
-*PLAN* 
+
+## PROBLEM STATEMENT
+I keep forgetting the how the previous steps were implemented while building the renderer, and it makes it impossible to figure out how to refactor the api to add new functionality.
+
+## MINIMUM GOAL
+retain enough basic information about each step to re-write a basic renderer from scratch using documentation and auto-complete *(in a supplemental assistance capacity)*.
+
+## SUPER GOAL
+retain the names of flags, functions, and types so that the render can be written from scratch without the use of documentation or auto-complete
+
+## PLAN 
 1. break the renderer into steps of ~50 - 100 lines of code
 2.  start each session with a blank file 
 	a. re-code the previous steps from scratch until you reach the current step
@@ -22,7 +29,7 @@
 1 session/day = 4 months
 ```
 
-## notes and updates
+# notes and updates
 - *CURRENT STEP (physical device)* - as far as I can tell, this is working. It's slow, but that's because I've re-written the entire program over a dozen times by now, and I can write previous steps with ease. As I'm progressing, I'm realizing how simple each of the steps actually are - when validations, and abstractions are ripped away, each step is really simple and easy to remember. 
 
 # TASKS
