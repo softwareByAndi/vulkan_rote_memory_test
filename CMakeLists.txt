@@ -25,16 +25,13 @@ link_libraries(
 # add primary executables
 add_executable(main main.cpp)
 add_executable(test test.cpp)
-add_executable(
-        min_validation
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/setup/validation_layers/min_run.cpp"
-)
 
 # programmatically add example executables
 foreach (NAME
         window
         instance
         validation_layers
+        physical_device
 )
     add_executable(
             "setup_${NAME}"

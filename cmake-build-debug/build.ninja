@@ -107,39 +107,6 @@ build test: CXX_EXECUTABLE_LINKER__test_Debug CMakeFiles/test.dir/test.cpp.o | /
   TARGET_PDB = test.dbg
 
 # =============================================================================
-# Object build statements for EXECUTABLE target min_validation
-
-
-#############################################
-# Order-only phony target for min_validation
-
-build cmake_object_order_depends_target_min_validation: phony || .
-
-build CMakeFiles/min_validation.dir/src/examples/setup/validation_layers/min_run.cpp.o: CXX_COMPILER__min_validation_unscanned_Debug /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/src/examples/setup/validation_layers/min_run.cpp || cmake_object_order_depends_target_min_validation
-  DEP_FILE = CMakeFiles/min_validation.dir/src/examples/setup/validation_layers/min_run.cpp.o.d
-  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
-  INCLUDES = -I/Users/mr.leaf/CLionProjects/vulkan_rote_memory_test -I/opt/homebrew/include -isystem /usr/local/include
-  OBJECT_DIR = CMakeFiles/min_validation.dir
-  OBJECT_FILE_DIR = CMakeFiles/min_validation.dir/src/examples/setup/validation_layers
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target min_validation
-
-
-#############################################
-# Link the executable min_validation
-
-build min_validation: CXX_EXECUTABLE_LINKER__min_validation_Debug CMakeFiles/min_validation.dir/src/examples/setup/validation_layers/min_run.cpp.o | /usr/local/lib/libvulkan.dylib /opt/homebrew/lib/libglfw.3.3.dylib
-  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk
-  LINK_LIBRARIES = -Wl,-rpath,/usr/local/lib  /usr/local/lib/libvulkan.dylib  /opt/homebrew/lib/libglfw.3.3.dylib
-  OBJECT_DIR = CMakeFiles/min_validation.dir
-  POST_BUILD = :
-  PRE_LINK = :
-  TARGET_FILE = min_validation
-  TARGET_PDB = min_validation.dbg
-
-# =============================================================================
 # Object build statements for EXECUTABLE target setup_window
 
 
@@ -238,6 +205,39 @@ build setup_validation_layers: CXX_EXECUTABLE_LINKER__setup_validation_layers_De
   TARGET_FILE = setup_validation_layers
   TARGET_PDB = setup_validation_layers.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target setup_physical_device
+
+
+#############################################
+# Order-only phony target for setup_physical_device
+
+build cmake_object_order_depends_target_setup_physical_device: phony || .
+
+build CMakeFiles/setup_physical_device.dir/src/examples/setup/physical_device/run.cpp.o: CXX_COMPILER__setup_physical_device_unscanned_Debug /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/src/examples/setup/physical_device/run.cpp || cmake_object_order_depends_target_setup_physical_device
+  DEP_FILE = CMakeFiles/setup_physical_device.dir/src/examples/setup/physical_device/run.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/mr.leaf/CLionProjects/vulkan_rote_memory_test -I/opt/homebrew/include -isystem /usr/local/include
+  OBJECT_DIR = CMakeFiles/setup_physical_device.dir
+  OBJECT_FILE_DIR = CMakeFiles/setup_physical_device.dir/src/examples/setup/physical_device
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target setup_physical_device
+
+
+#############################################
+# Link the executable setup_physical_device
+
+build setup_physical_device: CXX_EXECUTABLE_LINKER__setup_physical_device_Debug CMakeFiles/setup_physical_device.dir/src/examples/setup/physical_device/run.cpp.o | /usr/local/lib/libvulkan.dylib /opt/homebrew/lib/libglfw.3.3.dylib
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk
+  LINK_LIBRARIES = -Wl,-rpath,/usr/local/lib  /usr/local/lib/libvulkan.dylib  /opt/homebrew/lib/libglfw.3.3.dylib
+  OBJECT_DIR = CMakeFiles/setup_physical_device.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = setup_physical_device
+  TARGET_PDB = setup_physical_device.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -272,7 +272,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug
 
-build all: phony main test min_validation setup_window setup_instance setup_validation_layers
+build all: phony main test setup_window setup_instance setup_validation_layers setup_physical_device
 
 # =============================================================================
 # Built-in targets

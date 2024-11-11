@@ -1,8 +1,8 @@
 /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/main.dir
 /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/test.dir
-/Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/min_validation.dir
 /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/setup_window.dir
 /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/setup_instance.dir
 /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/setup_validation_layers.dir
+/Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/setup_physical_device.dir
 /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/edit_cache.dir
 /Users/mr.leaf/CLionProjects/vulkan_rote_memory_test/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -55,29 +55,29 @@
 				},
 				{
 					"directoryIndex" : 0,
-					"id" : "min_validation::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-min_validation-Debug-96d41e9c00c6893ce366.json",
-					"name" : "min_validation",
-					"projectIndex" : 0
-				},
-				{
-					"directoryIndex" : 0,
 					"id" : "setup_instance::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-setup_instance-Debug-c3a808d1d7c200646ff2.json",
+					"jsonFile" : "target-setup_instance-Debug-5dfa8506d3bce66c2a1f.json",
 					"name" : "setup_instance",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
+					"id" : "setup_physical_device::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-setup_physical_device-Debug-c62e76a30d870ba0acea.json",
+					"name" : "setup_physical_device",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
 					"id" : "setup_validation_layers::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-setup_validation_layers-Debug-99bf04e8ff012fca94e2.json",
+					"jsonFile" : "target-setup_validation_layers-Debug-4e58b7708f1fd3b0f487.json",
 					"name" : "setup_validation_layers",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "setup_window::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-setup_window-Debug-21a4e6e6ae8452eea69c.json",
+					"jsonFile" : "target-setup_window-Debug-25f2e4efc6907736ce5b.json",
 					"name" : "setup_window",
 					"projectIndex" : 0
 				},
