@@ -5,13 +5,7 @@
 #include <string>
 #include <vector>
 
-#define print(x) std::cout << x << std::endl
-#define error(x) std::cerr << x << std::endl
-#define DNL std::endl << std::endl
-#define LOG_SUCCESS std::cout << "  - SUCCESS" << DNL
-#define LOG_FAILURE std::cerr << "  - FAILURE" << DNL
-#define FAIL(x) LOG_FAILURE; throw std::runtime_error(x)
-#define NEWLINE std::cout << std::endl;
+#include "lib/snippets/io_macros.h"
 
 #define debugEXT VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
@@ -22,14 +16,15 @@ VkInstance instance;
 VkDebugUtilsMessengerEXT debugMessenger;
 std::vector<const char *> instanceEXT = {
   macEXT,
-  debugEXT
+  debugEXT,
+  /*GLFW extensions go here*/
 };
 std::vector<const char *> instanceLAY = {
 //  "VK_LAYER_LUNARG_api_dump",
-  "VK_LAYER_KHRONOS_profiles",
+//  "VK_LAYER_KHRONOS_profiles",
   "VK_LAYER_KHRONOS_validation",
-  "VK_LAYER_KHRONOS_synchronization2",
-  "VK_LAYER_KHRONOS_shader_object"
+//  "VK_LAYER_KHRONOS_synchronization2",
+//  "VK_LAYER_KHRONOS_shader_object"
 };
 
 VkDevice device;
@@ -39,9 +34,9 @@ VkPhysicalDeviceFeatures physDeviceFeatures;
 std::vector<VkQueueFamilyProperties> queueFamilies{};
 uint32_t queueFamilyIndex = 0;
 float_t queuePriority = 1.0f;
-std::vector<const char *>deviceEXT = {
+std::vector<const char *> deviceEXT = {
+  VK_KHR_SWAPCHAIN_EXTENSION_NAME /* only required if presenting data to a window. */
   /* add "VK_KHR_portability_subset" if device supports it */
-  VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
 
@@ -51,10 +46,12 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,
   void*                                            pUserData
 ) {
-  if (messageSeverity & (VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)) {
+  if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
     std::cerr << "DEBUG MESSENGER : " << pCallbackData->pMessage << std::endl;
+  } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+    std::cout << YELLOW << "DEBUG MESSENGER : " << pCallbackData->pMessage << RESET << std::endl;
   } else {
-    std::cout << "DEBUG MESSENGER : " << pCallbackData->pMessage << std::endl;
+    std::cout << GRAY << "DEBUG MESSENGER : " << pCallbackData->pMessage << RESET << std::endl;
   }
   return VK_FALSE;
 }
@@ -131,6 +128,8 @@ int main () {
       FAIL("no device found on machine");
     }
     physDevice = options[0];
+
+    /// DEVICE PROPERTIES & FEATURES
     vkGetPhysicalDeviceFeatures(physDevice, &physDeviceFeatures);
     vkGetPhysicalDeviceProperties(physDevice, &physDeviceProperties);
     const auto deviceType = physDeviceProperties.deviceType;
@@ -143,17 +142,22 @@ int main () {
     if (isCPU) deviceTypeLabel = "CPU";
     const bool supportsGeometryShader = physDeviceFeatures.geometryShader != 0;
     std::cout << "> " << physDeviceProperties.deviceName << " (" << deviceTypeLabel << ")" << std::endl;
-    std::cout << "  - geometryShader : " << std::boolalpha << supportsGeometryShader << std::endl;
+    label_blue("geometryShader", supportsGeometryShader);
     NEWLINE;
+
+    /// DEVICE EXTENSIONS
     vkEnumerateDeviceExtensionProperties(physDevice, nullptr, &count, nullptr);
     std::vector<VkExtensionProperties> extProperties(count);
     vkEnumerateDeviceExtensionProperties(physDevice, nullptr, &count, extProperties.data());
+
+    std::cout << GRAY;
     for (const auto & ext : extProperties) {
-      std::cout << "  - " << ext.extensionName << std::endl;
+      list_gray(ext.extensionName);
       if (strcmp(ext.extensionName, "VK_KHR_portability_subset") == 0) {
         deviceEXT.push_back("VK_KHR_portability_subset");
       }
     }
+    std::cout << RESET;
     NEWLINE;
     LOG_SUCCESS;
   }
@@ -168,10 +172,12 @@ int main () {
       FAIL("selected device missing queues...");
     }
     for (const auto & qf : queueFamilies) {
-      std::cout << "  - queue count: " << qf.queueCount << std::endl;
-      std::cout << "  - compute    : " << (bool)(qf.queueFlags & VK_QUEUE_COMPUTE_BIT) << std::endl;
-      std::cout << "  - graphics   : " << (bool)(qf.queueFlags & VK_QUEUE_GRAPHICS_BIT) << std::endl;
-      std::cout << "  - transfer   : " << (bool)(qf.queueFlags & VK_QUEUE_TRANSFER_BIT) << std::endl;
+      label("queue count", qf.queueCount);
+      std::cout << BLUE;
+      label_blue("compute    ", (bool)(qf.queueFlags & VK_QUEUE_COMPUTE_BIT));
+      label_blue("graphics   ", (bool)(qf.queueFlags & VK_QUEUE_GRAPHICS_BIT));
+      label_blue("transfer   ", (bool)(qf.queueFlags & VK_QUEUE_TRANSFER_BIT));
+      std::cout << RESET;
       NEWLINE;
     }
     queueFamilyIndex = 0;
@@ -207,6 +213,14 @@ int main () {
     }
   }
 
+  {
+    /* there's nothing to use this handle on yet, so just adding it here as reference. */
+    print("RETRIEVE QUEUE HANDLE");
+    VkQueue graphicsQueue;
+    vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
+    LOG_SUCCESS;
+  }
+
 //  window = glfwCreateWindow(800, 600, "hello world", nullptr, nullptr);
 //  while (!glfwWindowShouldClose(window)) {
 //    glfwPollEvents();
@@ -214,7 +228,6 @@ int main () {
 
   print("DESTROYING THE WORLD");
 //  glfwDestroyWindow(window);
-  glfwTerminate();
   vkDestroyDevice(device, nullptr);
   {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
@@ -223,5 +236,6 @@ int main () {
     }
   }
   vkDestroyInstance(instance, nullptr);
+  glfwTerminate();
   return EXIT_SUCCESS;
 }

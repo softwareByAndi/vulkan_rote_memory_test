@@ -28,14 +28,23 @@ add_executable(test test.cpp)
 
 # programmatically add example executables
 foreach (NAME
-        window
-        instance
-        validation_layers
-        physical_device
-        device
+        1_window
+        2_instance
+        3_validation_layers
+        4_physical_device
+        5_device
 )
     add_executable(
-            "setup_${NAME}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/setup/${NAME}/run.cpp"
+            "1_setup_${NAME}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/1_setup/${NAME}/run.cpp"
+    )
+endforeach ()
+
+foreach (NAME
+        1_window_surface
+)
+    add_executable(
+            "2_presentation_${NAME}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/2_presentation/${NAME}/run.cpp"
     )
 endforeach ()

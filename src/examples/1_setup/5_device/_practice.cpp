@@ -6,6 +6,7 @@
  *     - save device properties
  *     - save device features
  *     - get / save device queue families
+ *     - check device extensions
  *     - select a queue
  * - create a virtual device
  */
