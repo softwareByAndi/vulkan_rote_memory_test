@@ -12,7 +12,6 @@
 #define list(x) std::cout << "  - " << x << std::endl
 
 #define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
-#define macFLAG VK_KHR_portability_enumeration
 VkInstance instance;
 std::vector<const char*> requiredExtensions = { macEXT };
 

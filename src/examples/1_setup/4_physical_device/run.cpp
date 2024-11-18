@@ -15,7 +15,6 @@
 #define DNL std::endl << std::endl;
 
 #define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
-#define macFLAG VK_KHR_portability_enumeration
 VkInstance instance;
 std::vector<const char*> reqEXT = {
   macEXT
@@ -46,7 +45,7 @@ int main() {
     VkInstanceCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     info.pNext = nullptr;
-    info.flags |= macFLAG;
+    info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     info.pApplicationInfo = &ai;
     info.enabledLayerCount = reqLAY.size();
     info.ppEnabledLayerNames = reqLAY.data();

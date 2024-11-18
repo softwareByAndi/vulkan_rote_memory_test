@@ -12,7 +12,6 @@
 
 #define debugEXT VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
-#define macFLAG VK_KHR_portability_enumeration
 VkInstance instance;
 VkDebugUtilsMessengerEXT debugMessenger;
 std::vector<const char *> requiredInstanceExtensions = {
