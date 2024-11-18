@@ -9,16 +9,20 @@
 #include "lib/snippets/io_macros.h"
 
 #define VK_USE_PLATFORM_METAL_EXT
-#define macFLAG VK_KHR_portability_enumeration
 
 GLFWwindow *window = nullptr;
 VkInstance instance;
+VkDebugUtilsMessengerEXT debugMessenger;
 VkDevice device;
 VkQueue graphicsQueue;
 VkSurfaceKHR surface;
-VkDebugUtilsMessengerEXT debugMessenger;
 
-/// EXTENSIONS AND LAYERS
+VkPhysicalDevice physicalDevice;
+VkPhysicalDeviceFeatures physicalDeviceFeatures;
+std::vector<VkQueueFamilyProperties> queueFamilies{};
+uint32_t queueFamilyIndex = 0;
+float_t queuePriority = 1.0f;
+
 std::vector<const char *> instanceEXT = {
   VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, // FIXME - research
   VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
@@ -26,24 +30,12 @@ std::vector<const char *> instanceEXT = {
   /*GLFW extensions go here*/
 };
 std::vector<const char *> instanceLAY = {
-//  "VK_LAYER_LUNARG_api_dump",
-//  "VK_LAYER_KHRONOS_profiles",
-  "VK_LAYER_KHRONOS_validation",
-//  "VK_LAYER_KHRONOS_synchronization2",
-//  "VK_LAYER_KHRONOS_shader_object"
+  "VK_LAYER_KHRONOS_validation"
 };
 std::vector<const char *> deviceEXT = {
-  VK_KHR_SWAPCHAIN_EXTENSION_NAME
-  /* add "VK_KHR_portability_subset" if device supports it */
+  VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+  "VK_KHR_portability_subset" // if device supports it
 };
-
-/// DEVICE PROPERTIES
-VkPhysicalDevice physicalDevice;
-VkPhysicalDeviceProperties physicalDeviceProperties;
-VkPhysicalDeviceFeatures physicalDeviceFeatures;
-std::vector<VkQueueFamilyProperties> queueFamilies{};
-uint32_t queueFamilyIndex = 0;
-float_t queuePriority = 1.0f;
 
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -53,7 +45,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   void*                                            pUserData
 ) {
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-    std::cerr << "DEBUG MESSENGER : " << pCallbackData->pMessage << std::endl;
+    std::cerr << RED << "DEBUG MESSENGER : " << pCallbackData->pMessage << RESET << std::endl;
   } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
     std::cout << YELLOW << "DEBUG MESSENGER : " << pCallbackData->pMessage << RESET << std::endl;
   } else {
@@ -63,8 +55,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 int main () {
-  glfwInit();
-  {
+  SECTION("GLFW"){
+    glfwInit();
     uint32_t count = 0;
     auto glfwEXT = glfwGetRequiredInstanceExtensions(&count);
     for (auto i = 0; i < count; i++) {
@@ -73,10 +65,8 @@ int main () {
     for (const auto & ext : instanceEXT) {
       list_gray(ext);
     }
-  }
-
-  SECTION("INSTANCE")
-  {
+  } END_SECTION
+  SECTION("INSTANCE") {
     VkApplicationInfo ai{};
     ai.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     ai.pNext = VK_NULL_HANDLE;
@@ -102,11 +92,8 @@ int main () {
     } else {
       LOG_SUCCESS;
     }
-  }
-  END_SECTION
-
-  SECTION("DEBUG MESSENGER")
-  {
+  } END_SECTION
+  SECTION("DEBUG MESSENGER") {
     VkDebugUtilsMessengerCreateInfoEXT info{};
     info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     info.pNext = VK_NULL_HANDLE;
@@ -126,11 +113,8 @@ int main () {
     } else {
       FAIL("unable to find function to create debug messenger");
     }
-  }
-  END_SECTION
-
-  SECTION("PHYSICAL DEVICE")
-  {
+  } END_SECTION
+  SECTION("DEVICE") {
     uint32_t count = 0;
     vkEnumeratePhysicalDevices(instance, &count, nullptr);
     std::vector<VkPhysicalDevice> options(count);
@@ -139,65 +123,18 @@ int main () {
       FAIL("no device found on machine");
     }
     physicalDevice = options[0];
-
-    /// DEVICE PROPERTIES & FEATURES
     vkGetPhysicalDeviceFeatures(physicalDevice, &physicalDeviceFeatures);
-    vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
-    const auto deviceType = physicalDeviceProperties.deviceType;
-    const bool isGPU = deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
-                       || deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU
-                       || deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
-    const bool isCPU = deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU;
-    std::string deviceTypeLabel = "OTHER";
-    if (isGPU) deviceTypeLabel = "GPU";
-    if (isCPU) deviceTypeLabel = "CPU";
-    const bool supportsGeometryShader = physicalDeviceFeatures.geometryShader != 0;
-    std::cout << "> " << physicalDeviceProperties.deviceName << " (" << deviceTypeLabel << ")" << std::endl;
-    label_blue("geometryShader", supportsGeometryShader);
 
-
-    /// DEVICE EXTENSIONS
-    vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, nullptr);
-    std::vector<VkExtensionProperties> extProperties(count);
-    vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, extProperties.data());
-
-//    print(GRAY);
-    for (const auto & ext : extProperties) {
-//      list_gray(ext.extensionName);
-      if (strcmp(ext.extensionName, "VK_KHR_portability_subset") == 0) {
-        deviceEXT.push_back("VK_KHR_portability_subset");
-      }
-    }
-//    print(RESET);
-    LOG_SUCCESS;
-  }
-  END_SECTION
-
-  SECTION("PHYSICAL DEVICE QUEUE")
-  {
-    uint32_t count = 0;
+    count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
     queueFamilies.resize(count);
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, queueFamilies.data());
     if (queueFamilies.empty()) {
       FAIL("selected device missing queues...");
     }
-    for (const auto & qf : queueFamilies) {
-      label("queue count", qf.queueCount);
-      std::cout << BLUE;
-      label_blue("compute    ", (bool)(qf.queueFlags & VK_QUEUE_COMPUTE_BIT));
-      label_blue("graphics   ", (bool)(qf.queueFlags & VK_QUEUE_GRAPHICS_BIT));
-      label_blue("transfer   ", (bool)(qf.queueFlags & VK_QUEUE_TRANSFER_BIT));
-      std::cout << RESET;
-      NEWLINE;
-    }
     queueFamilyIndex = 0;
-    LOG_SUCCESS;
-  }
-  END_SECTION
+    queuePriority = 1.0f;
 
-  SECTION("LOGICAL DEVICE")
-  {
     VkDeviceQueueCreateInfo qi{};
     qi.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     qi.pNext = VK_NULL_HANDLE;
@@ -205,14 +142,13 @@ int main () {
     qi.queueCount = 1;
     qi.pQueuePriorities = &queuePriority;
 
-    VkDeviceCreateInfo info {};
+    VkDeviceCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     info.pNext = VK_NULL_HANDLE;
     info.queueCreateInfoCount = 1;
     info.pQueueCreateInfos = &qi;
     info.enabledLayerCount = instanceLAY.size();
     info.ppEnabledLayerNames = instanceLAY.data();
-//    info.enabledExtensionCount = 0;
     info.enabledExtensionCount = deviceEXT.size();
     info.ppEnabledExtensionNames = deviceEXT.data();
     info.pEnabledFeatures = &physicalDeviceFeatures;
@@ -220,21 +156,11 @@ int main () {
     auto result = vkCreateDevice(physicalDevice, &info, nullptr, &device);
     if (result != VK_SUCCESS) {
       FAIL("unable to create device");
-    } else {
-      LOG_SUCCESS;
     }
-  }
-  END_SECTION
-
-  SECTION("RETRIEVE QUEUE HANDLE")
-  {
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
     LOG_SUCCESS;
-  }
-  END_SECTION
-
-  SECTION("SURFACE")
-  {
+  } END_SECTION
+  SECTION("SURFACE") {
     VkMetalSurfaceCreateInfoEXT info{};
     info.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
     info.pNext = VK_NULL_HANDLE;
@@ -245,25 +171,19 @@ int main () {
       FAIL("failed to create metal surface");
     }
     LOG_SUCCESS;
-  }
-  END_SECTION
-
-//  window = glfwCreateWindow(800, 600, "hello world", nullptr, nullptr);
-//  while (!glfwWindowShouldClose(window)) {
-//    glfwPollEvents();
-//  }
-
-  print("DESTROYING THE WORLD");
-//  glfwDestroyWindow(window);
-  vkDestroySurfaceKHR(instance, surface, nullptr);
-  vkDestroyDevice(device, nullptr);
-  {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-      func(instance, debugMessenger, nullptr);
+  } END_SECTION
+  SECTION("DESTROYING THE WORLD") {
+    vkDestroySurfaceKHR(instance, surface, nullptr);
+    vkDestroyDevice(device, nullptr);
+    {
+      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
+                                                                              "vkDestroyDebugUtilsMessengerEXT");
+      if (func != nullptr) {
+        func(instance, debugMessenger, nullptr);
+      }
     }
-  }
-  vkDestroyInstance(instance, nullptr);
-  glfwTerminate();
+    vkDestroyInstance(instance, nullptr);
+    glfwTerminate();
+  } END_SECTION
   return EXIT_SUCCESS;
 }
