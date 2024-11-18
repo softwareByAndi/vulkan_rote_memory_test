@@ -7,7 +7,7 @@ project(vulkan_rote_memory_test)
 
 # find packages
 find_package(Vulkan REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
+find_package(glfw3 3.4 REQUIRED)
 find_package(glm)
 
 # list global includes dirs
@@ -19,7 +19,7 @@ include_directories(
 )
 link_libraries(
         Vulkan::Vulkan
-        "/opt/homebrew/lib/libglfw.3.3.dylib"
+        "/opt/homebrew/lib/libglfw.3.4.dylib"
 )
 
 # add primary executables
