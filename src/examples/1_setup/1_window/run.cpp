@@ -4,8 +4,13 @@
 #include <vector>
 #include <iostream>
 
+void glfwErrorCallback(int code, const char* description) {
+  std::cerr << "GLFW ERROR " << code << ": " << description << std::endl;
+}
+
 int main() {
   glfwInit();
+  glfwSetErrorCallback(glfwErrorCallback);
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
