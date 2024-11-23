@@ -34,7 +34,6 @@ std::vector<VkQueueFamilyProperties> queueFamilies{};
 uint32_t queueFamilyIndex = 0;
 float_t queuePriority = 1.0f;
 std::vector<const char *> deviceEXT = {
-  VK_KHR_SWAPCHAIN_EXTENSION_NAME /* only required if presenting data to a window. */
   /* add "VK_KHR_portability_subset" if device supports it */
 };
 

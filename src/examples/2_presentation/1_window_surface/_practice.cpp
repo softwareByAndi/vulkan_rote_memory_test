@@ -27,7 +27,6 @@ std::vector<const char *> instanceLAY = {
   "VK_LAYER_KHRONOS_validation",
 };
 std::vector<const char *> deviceEXT = {
-  VK_KHR_SWAPCHAIN_EXTENSION_NAME
   "VK_KHR_portability_subset" // M1 silicon chip
 };
 
