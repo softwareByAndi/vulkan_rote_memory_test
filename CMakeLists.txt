@@ -42,9 +42,10 @@ endforeach ()
 
 foreach (NAME
         1_window_surface
+        2_swapchain
 )
     add_executable(
-            "2_presentation_${NAME}"
+            "2_present_${NAME}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/2_presentation/${NAME}/run.cpp"
     )
 endforeach ()
