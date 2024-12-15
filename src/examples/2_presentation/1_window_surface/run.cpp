@@ -1,21 +1,23 @@
 #define GLFW_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
-#include <vulkan/vulkan_metal.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
 #include <vector>
-
 #include "lib/snippets/io_macros.h"
 
-#define VK_USE_PLATFORM_METAL_EXT
+#include "enum_names.h"
 
 GLFWwindow *window = nullptr;
 VkInstance instance;
 VkDebugUtilsMessengerEXT debugMessenger;
 VkDevice device;
-VkQueue graphicsQueue;
+VkQueue mainQueue;
+
 VkSurfaceKHR surface;
+VkSurfaceCapabilitiesKHR surfaceCapabilities;
+std::vector<VkSurfaceFormatKHR> surfaceFormats{};
+std::vector<VkPresentModeKHR> presentModes{};
 
 VkPhysicalDevice physicalDevice;
 VkPhysicalDeviceFeatures physicalDeviceFeatures;
@@ -24,7 +26,6 @@ uint32_t queueFamilyIndex = 0;
 float_t queuePriority = 1.0f;
 
 std::vector<const char *> instanceEXT = {
-  VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, // FIXME - research
   VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
   VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
   /*GLFW extensions go here*/
@@ -53,9 +54,14 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   return VK_FALSE;
 }
 
+void glfwErrorCallback(int code, const char* description) {
+  std::cerr << RED << "GLFW ERROR " << code << ": " << description << std::endl;
+}
+
 int main () {
   SECTION("GLFW"){
     glfwInit();
+    glfwSetErrorCallback(glfwErrorCallback);
     uint32_t count = 0;
     auto glfwEXT = glfwGetRequiredInstanceExtensions(&count);
     for (auto i = 0; i < count; i++) {
@@ -156,21 +162,110 @@ int main () {
     if (result != VK_SUCCESS) {
       FAIL("unable to create device");
     }
-    vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
+    vkGetDeviceQueue(device, queueFamilyIndex, 0, &mainQueue);
+    LOG_SUCCESS;
+  } END_SECTION
+  SECTION("WINDOW") {
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    window = glfwCreateWindow(800, 600, "Window Surface Example", nullptr, nullptr);
     LOG_SUCCESS;
   } END_SECTION
   SECTION("SURFACE") {
-    VkMetalSurfaceCreateInfoEXT info{};
-    info.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
-    info.pNext = VK_NULL_HANDLE;
-    info.pLayer = VK_NULL_HANDLE;
-
-    auto result = vkCreateMetalSurfaceEXT(instance, &info, nullptr, &surface);
+    auto result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
     if (result != VK_SUCCESS) {
-      FAIL("failed to create metal surface");
+      FAIL("failed to create window surface");
     }
+
+    bool surfaceSupported = false;
+
+    SECTION("  Queue Family Surface Support:") {
+      for (auto i = 0; i < queueFamilies.size(); i++) {
+        VkBool32 supported;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supported);
+        if (supported) {
+          std::cout << GREEN << "    + queue family " << i << " supports surface" <<  RESET << std::endl;
+          if (i == queueFamilyIndex) {
+            surfaceSupported = true;
+          }
+        } else {
+          std::cout << RED << "   - queue family " << i << " does not support surface" << RESET << std::endl;
+        }
+      }
+      NEWLINE;
+    } END_SECTION
+
+    if (!surfaceSupported) {
+      FAIL("surface not supported for selected queue family");
+    }
+
+    SECTION("  Surface Capabilities:") {
+      vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
+
+      auto sc = &surfaceCapabilities;
+      std::cout << GRAY;
+      std::cout << "    - image count    : " << sc->minImageCount << "-" << sc->maxImageCount << std::endl;
+      std::cout << "    - currentExtent  : " << sc->currentExtent.height << "h x " << sc->currentExtent.width << "w " << std::endl;
+      std::cout << "    - minImageExtent : " << sc->minImageExtent.height << "h x " << sc->minImageExtent.width << "w " << std::endl;
+      std::cout << "    - maxImageExtent : " << sc->maxImageExtent.height << "h x " << sc->maxImageExtent.width << "w " << std::endl;
+      std::cout << "    - maxImageArrayLayers : " << sc->maxImageArrayLayers << std::endl;
+      // the rest are flags. I'll do them later if they ever become important
+      std::cout << RESET;
+      NEWLINE;
+    } END_SECTION
+
+    SECTION("  Present Modes:") {
+      uint32_t count = 0;
+      vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &count, nullptr);
+      presentModes.resize(count);
+      vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &count, presentModes.data());
+      std::cout << GRAY;
+      for (const auto & present : presentModes) {
+        std::cout << "    - " << presentModeFlagName(present) << std::endl;
+      }
+      std::cout << RESET;
+      NEWLINE;
+    } END_SECTION
+
+    SECTION("  Formats:") {
+      uint32_t count = 0;
+      vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &count, nullptr);
+      surfaceFormats.resize(count);
+      vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &count, surfaceFormats.data());
+      std::cout << GRAY;
+      for (const auto &format: surfaceFormats) {
+        std::cout << "    - " << colorSpaceFlagName(format.colorSpace)
+                  << " - "    << formatFlagName(format.format)
+                  << std::endl;
+      }
+      std::cout << RESET;
+      NEWLINE;
+    } END_SECTION
+
+
+    if (surfaceFormats.empty()) {
+      std::cerr << RED << "no surface formats found" << RESET << std::endl;
+    }
+    if (presentModes.empty()) {
+      std::cerr << RED << "no present modes found" << RESET << std::endl;
+    }
+
+    if (surfaceFormats.empty() || presentModes.empty()) {
+      FAIL("surface failed");
+    }
+
     LOG_SUCCESS;
   } END_SECTION
+
+
+
+//  {
+//    while (!glfwWindowShouldClose(window)) {
+//      glfwPollEvents();
+//    }
+//  }
+
+
+
   SECTION("DESTROYING THE WORLD") {
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyDevice(device, nullptr);
@@ -182,7 +277,9 @@ int main () {
       }
     }
     vkDestroyInstance(instance, nullptr);
+    glfwDestroyWindow(window);
     glfwTerminate();
+    LOG_SUCCESS;
   } END_SECTION
   return EXIT_SUCCESS;
 }

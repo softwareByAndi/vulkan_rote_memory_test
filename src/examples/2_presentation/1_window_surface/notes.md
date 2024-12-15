@@ -1,20 +1,32 @@
-# TLDR - Quick Ref
-### MAC M1 - Metal
-- native surface code for metal is found in `<vulkan/vulkan_metal.h>`
-- tell vulkan to enable metal surface using `#define VK_USE_PLATFORM_METAL_EXT`
-- use this function to create a metal surface `vkCreateMetalSurfaceEXT`
 
-# Notes
+# Window Surface
+it's pretty simple...
+- create window
+- create surface
+- confirm surface support
+``` cpp
+glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+window = glfwCreateWindow(800, 600, "Window Surface Example", nullptr, nullptr);
 
-### problem statement
-mac M1 is using metal surface, and KHR_display extension isn't supported (according to `vkEnumerateInstanceExtensionProperties`). 
+glfwCreateWindowSurface(instance, window, nullptr, &surface)
 
-### conclusion
-So as far as I understand it, a native metal surface needs to be enabled instead of a generic surface.
+VkBool32 isSupported;
+vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, surface, &isSupported);
+```
 
-### documentation
-- metal surface https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap34.html#platformCreateSurface_metal
-- WSI headers https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap57.html#boilerplate-wsi-header
-
-- full WSI docs - I still need to go through this - https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap34.html
-
+# Surface Details for Swap chain
+- Surface Capabilities
+  - extent
+  - image count
+  - etc...
+- Present Modes
+  - `FIFO`
+  - `MAILBOX`
+  - etc...
+- Formats
+  - color space
+  - format / data-structure
+    - e.g. 
+      - bits per color
+      - color order
+      - data type *( int v.s. float v.s sRGB, etc... )*

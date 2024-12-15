@@ -6,7 +6,6 @@
 #include <vector>
 #include "lib/snippets/io_macros.h"
 
-GLFWwindow *window = nullptr;
 VkInstance instance;
 VkDebugUtilsMessengerEXT debugMessenger;
 VkDevice device;
@@ -24,11 +23,12 @@ std::vector<const char *> instanceEXT = {
   /*GLFW extensions go here*/
 };
 std::vector<const char *> instanceLAY = {
-  "VK_LAYER_KHRONOS_validation",
+  "VK_LAYER_KHRONOS_validation"
 };
 std::vector<const char *> deviceEXT = {
-  "VK_KHR_portability_subset" // M1 silicon chip
+  "VK_KHR_portability_subset" // if device supports it
 };
+
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
@@ -46,9 +46,14 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   return VK_FALSE;
 }
 
+void glfwErrorCallback(int code, const char* description) {
+  std::cerr << RED << "GLFW ERROR " << code << ": " << description << std::endl;
+}
+
 int main () {
-  SECTION("GLFW") {
+  SECTION("GLFW"){
     glfwInit();
+    glfwSetErrorCallback(glfwErrorCallback);
     uint32_t count = 0;
     auto glfwEXT = glfwGetRequiredInstanceExtensions(&count);
     for (auto i = 0; i < count; i++) {
@@ -134,7 +139,7 @@ int main () {
     qi.queueCount = 1;
     qi.pQueuePriorities = &queuePriority;
 
-    VkDeviceCreateInfo info {};
+    VkDeviceCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     info.pNext = VK_NULL_HANDLE;
     info.queueCreateInfoCount = 1;
@@ -152,23 +157,22 @@ int main () {
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
     LOG_SUCCESS;
   } END_SECTION
-  SECTION("SURFACE") /*TODO*/ {
+  SECTION("WINDOW") /*CODE ME*/ {
+  } END_SECTION
+  SECTION("SURFACE") /*CODE ME*/ {
 
   } END_SECTION
   SECTION("DESTROYING THE WORLD") {
     vkDestroyDevice(device, nullptr);
     {
-      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
-        instance,
-        "vkDestroyDebugUtilsMessengerEXT"
-      );
+      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
+                                                                              "vkDestroyDebugUtilsMessengerEXT");
       if (func != nullptr) {
         func(instance, debugMessenger, nullptr);
       }
     }
     vkDestroyInstance(instance, nullptr);
     glfwTerminate();
-    LOG_SUCCESS;
-  } END_SECTION;
+  } END_SECTION
   return EXIT_SUCCESS;
 }
