@@ -43,6 +43,7 @@ endforeach ()
 foreach (NAME
         1_window_surface
         2_swapchain
+        3_image_views
 )
     add_executable(
             "2_present_${NAME}"
