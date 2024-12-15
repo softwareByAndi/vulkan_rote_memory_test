@@ -171,11 +171,9 @@ int main () {
     }
     for (const auto & qf : queueFamilies) {
       label("queue count", qf.queueCount);
-      std::cout << BLUE;
       label_blue("compute    ", (bool)(qf.queueFlags & VK_QUEUE_COMPUTE_BIT));
       label_blue("graphics   ", (bool)(qf.queueFlags & VK_QUEUE_GRAPHICS_BIT));
       label_blue("transfer   ", (bool)(qf.queueFlags & VK_QUEUE_TRANSFER_BIT));
-      std::cout << RESET;
       NEWLINE;
     }
     queueFamilyIndex = 0;
