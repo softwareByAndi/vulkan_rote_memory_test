@@ -9,7 +9,7 @@ project(vulkan_rote_memory_test)
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.4 REQUIRED)
 find_package(glm)
-find_program(GLSL_VALIDATOR glslangValidator
+find_program(GLSL_VALIDATOR glslangValidator REQUIRED
     HINTS
         /usr/bin
         /usr/local/bin
@@ -29,7 +29,6 @@ link_libraries(
         "/opt/homebrew/lib/libglfw.3.4.dylib"
 )
 
-
 ## find all the shader files under the shaders folder
 file(GLOB_RECURSE GLSL_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/shaders/*.frag"
@@ -40,32 +39,28 @@ file(GLOB_RECURSE GLSL_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/shaders/**/*.comp"
 )
 
-message(STATUS ${GLSL_VALIDATOR})
-
 ## iterate each shader
 foreach(GLSL ${GLSL_SOURCE_FILES})
+    message(STATUS "BUILDING SHADER")
     get_filename_component(FILE_NAME ${GLSL} NAME)
-#    message(STATUS "BUILDING SHADER  - ${PROJECT_SOURCE_DIR}/shaders/${FILE_NAME}.spv")
     set(SPIRV "${PROJECT_SOURCE_DIR}/shaders/${FILE_NAME}.spv")
-#    message(STATUS ${GLSL})
-#    message(STATUS ${SPIRV})
+    message(STATUS ${GLSL})
     ## execute glslang command to compile that specific shader
     add_custom_command(
             OUTPUT ${SPIRV}
             COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
-            DEPENDS ${GLSL}
-            COMMENT "Compiling shader: ${FILE_NAME}"
-    )
+            DEPENDS ${GLSL})
     list(APPEND SPIRV_BINARY_FILES ${SPIRV})
 endforeach(GLSL)
 
-add_custom_target(Shaders DEPENDS ${SPIRV_BINARY_FILES})
+add_custom_target(
+    Shaders
+    DEPENDS ${SPIRV_BINARY_FILES}
+)
 
 # add primary executables
 add_executable(main main.cpp)
 add_executable(test test.cpp)
-
-add_dependencies(main Shaders)
 
 # programmatically add example executables
 foreach (NAME
@@ -89,16 +84,5 @@ foreach (NAME
     add_executable(
             "2_present_${NAME}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/2_presentation/${NAME}/run.cpp"
-    )
-endforeach ()
-
-foreach (NAME
-        1_shaders
-        2_render_pass
-        3_pipeline
-)
-    add_executable(
-            "3_pipeline_${NAME}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/3_pipeline/${NAME}/run.cpp"
     )
 endforeach ()

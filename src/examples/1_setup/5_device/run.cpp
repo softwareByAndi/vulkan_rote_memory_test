@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "lib/snippets/io_macros.h"
+#include "lib/snippets/useful_functions.h"
 
 #define debugEXT VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
@@ -34,8 +35,21 @@ std::vector<VkQueueFamilyProperties> queueFamilies{};
 uint32_t queueFamilyIndex = 0;
 float_t queuePriority = 1.0f;
 std::vector<const char *> deviceEXT = {
+  VK_KHR_SWAPCHAIN_EXTENSION_NAME,
   /* add "VK_KHR_portability_subset" if device supports it */
 };
+
+VkSurfaceKHR surface;
+VkSurfaceCapabilitiesKHR surfCaps;
+
+VkSwapchainKHR swapchain;
+uint32_t imageCount = 3;
+VkFormat swapFormat = VK_FORMAT_B8G8R8A8_SRGB;
+VkColorSpaceKHR swapColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+VkExtent2D swapExtent;
+VkRect2D swapViewport;
+std::vector<VkImage> swapImages(imageCount);
+std::vector<VkImageView> swapImageViews(imageCount);
 
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -55,17 +69,27 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 int main () {
-  glfwInit();
-  {
+  SECTION("GLFW") {
+    glfwInit();
     uint32_t count = 0;
     auto glfwEXT = glfwGetRequiredInstanceExtensions(&count);
     for (auto i = 0; i < count; i++) {
       instanceEXT.push_back(glfwEXT[i]);
     }
+    LOG_SUCCESS;
   }
+  SECTION("INSTANCE") {
+    std::cout << BLUE << "  EXTENSIONS:" << RESET << std::endl;
+    for (const auto& ext : instanceEXT) {
+      list_blue(ext);
+    }
+    NEWLINE;
+    std::cout << BLUE << "  LAYERS:" << RESET << std::endl;
+    for (const auto& ext : instanceLAY) {
+      list_blue(ext);
+    }
+    NEWLINE;
 
-  {
-    print("INSTANCE");
     VkApplicationInfo ai{};
     ai.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     ai.pNext = VK_NULL_HANDLE;
@@ -92,9 +116,7 @@ int main () {
       LOG_SUCCESS;
     }
   }
-
-  {
-    print("DEBUG MESSENGER");
+  SECTION("DEBUG MESSENGER") {
     VkDebugUtilsMessengerCreateInfoEXT info{};
     info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     info.pNext = VK_NULL_HANDLE;
@@ -115,9 +137,7 @@ int main () {
       FAIL("unable to find function to create debug messenger");
     }
   }
-
-  {
-    print("PHYSICAL DEVICE");
+  SECTION("PHYSICAL DEVICE") {
     uint32_t count = 0;
     vkEnumeratePhysicalDevices(instance, &count, nullptr);
     std::vector<VkPhysicalDevice> options(count);
@@ -148,20 +168,22 @@ int main () {
     std::vector<VkExtensionProperties> extProperties(count);
     vkEnumerateDeviceExtensionProperties(physDevice, nullptr, &count, extProperties.data());
 
-    std::cout << GRAY;
     for (const auto & ext : extProperties) {
-      list_gray(ext.extensionName);
       if (strcmp(ext.extensionName, "VK_KHR_portability_subset") == 0) {
         deviceEXT.push_back("VK_KHR_portability_subset");
       }
     }
-    std::cout << RESET;
+    for (const auto& ext: extProperties) {
+      if (UF::includes(deviceEXT, ext.extensionName)) {
+        list_blue(ext.extensionName);
+      } else {
+        list_gray(ext.extensionName);
+      }
+    }
     NEWLINE;
     LOG_SUCCESS;
   }
-
-  {
-    print("PHYSICAL DEVICE QUEUE");
+  SECTION("PHYSICAL DEVICE QUEUE") {
     uint32_t count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physDevice, &count, nullptr);
     queueFamilies.resize(count);
@@ -179,9 +201,7 @@ int main () {
     queueFamilyIndex = 0;
     LOG_SUCCESS;
   }
-
-  {
-    print("LOGICAL DEVICE");
+  SECTION("LOGICAL DEVICE") {
     VkDeviceQueueCreateInfo qi{};
     qi.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     qi.pNext = VK_NULL_HANDLE;
@@ -208,30 +228,25 @@ int main () {
       LOG_SUCCESS;
     }
   }
-
-  {
+  SECTION("RETRIEVE QUEUE HANDLE") {
     /* there's nothing to use this handle on yet, so just adding it here as reference. */
-    print("RETRIEVE QUEUE HANDLE");
     VkQueue graphicsQueue;
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
     LOG_SUCCESS;
   }
-
-//  window = glfwCreateWindow(800, 600, "hello world", nullptr, nullptr);
-//  while (!glfwWindowShouldClose(window)) {
-//    glfwPollEvents();
-//  }
-
-  print("DESTROYING THE WORLD");
-//  glfwDestroyWindow(window);
-  vkDestroyDevice(device, nullptr);
-  {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-      func(instance, debugMessenger, nullptr);
+  SECTION("DESTROYING THE WORLD") {
+    //  glfwDestroyWindow(window);
+    vkDestroyDevice(device, nullptr);
+    {
+      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
+                                                                              "vkDestroyDebugUtilsMessengerEXT");
+      if (func != nullptr) {
+        func(instance, debugMessenger, nullptr);
+      }
     }
+    vkDestroyInstance(instance, nullptr);
+    glfwTerminate();
+    LOG_SUCCESS;
   }
-  vkDestroyInstance(instance, nullptr);
-  glfwTerminate();
   return EXIT_SUCCESS;
 }
