@@ -386,7 +386,7 @@ int main() {
     VkPipelineColorBlendAttachmentState colorAttachment{};
     colorAttachment.blendEnable = VK_FALSE;
     colorAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+                                     VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     colorAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     colorAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorAttachment.colorBlendOp = VK_BLEND_OP_ADD;
@@ -449,7 +449,7 @@ int main() {
     vkDestroyShaderModule(device, vertexShader, nullptr);
     vkDestroyShaderModule(device, fragmentShader, nullptr);
     LOG_SUCCESS;
-  }
+  }s
   SECTION("FRAME BUFFER") {
     swapFramebuffers.resize(swapImageViews.size());
     for (auto i = 0; i < swapImageViews.size(); i++) {
@@ -497,15 +497,15 @@ int main() {
     fi.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fi.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     if (
-         VK_SUCCESS != vkCreateSemaphore(device, &si, nullptr, &semaphoreIMG)
+      VK_SUCCESS != vkCreateSemaphore(device, &si, nullptr, &semaphoreIMG)
       || VK_SUCCESS != vkCreateSemaphore(device, &si, nullptr, &semaphoreRENDER)
       || VK_SUCCESS != vkCreateFence(device, &fi, nullptr, &fenceIMG)
-    ) {
+      ) {
       FAIL("failed to create sync objects");
     }
     LOG_SUCCESS;
   }
-  SECTION("LOOP") {
+  SECTION("DRAW") {
     VkSwapchainKHR swapchains[] = {swapchain};
     VkSemaphore waitSemaphores[] = {semaphoreIMG};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };

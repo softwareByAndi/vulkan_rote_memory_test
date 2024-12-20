@@ -327,18 +327,18 @@ int main() {
     ri.depthClampEnable = VK_FALSE;
     ri.rasterizerDiscardEnable = VK_FALSE;
     ri.polygonMode = VK_POLYGON_MODE_FILL;
-    ri.lineWidth = 1.0f;
     ri.cullMode = VK_CULL_MODE_BACK_BIT;
     ri.frontFace = VK_FRONT_FACE_CLOCKWISE;
     ri.depthBiasEnable = VK_FALSE;
+    ri.lineWidth = 1.0f;
 //    ri.depthBiasConstantFactor = 0.0f;
 //    ri.depthBiasClamp = 0.0f;
 //    ri.depthBiasSlopeFactor = 0.0f;
 
     VkPipelineMultisampleStateCreateInfo msi{};
     msi.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    msi.sampleShadingEnable = VK_FALSE;
     msi.rasterizationSamples = renderSampleCount;
+    msi.sampleShadingEnable = VK_FALSE;
 //    msi.minSampleShading = 1.0f;
 //    msi.pSampleMask = nullptr;
 //    msi.alphaToCoverageEnable = VK_FALSE;
@@ -356,8 +356,9 @@ int main() {
     finalColor = finalColor & colorWriteMask;
  */
     VkPipelineColorBlendAttachmentState cba{};
-    cba.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     cba.blendEnable = VK_TRUE;
+    cba.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 //    cba.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
 //    cba.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
 //    cba.colorBlendOp = VK_BLEND_OP_ADD;
@@ -431,11 +432,6 @@ int main() {
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     LOG_SUCCESS;
   }
-
-//  while (!glfwWindowShouldClose(window)) {
-//    glfwPollEvents();
-//  }
-
   SECTION("DESTROY") {
     vkDestroyPipeline(device, pipeline, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
@@ -447,7 +443,10 @@ int main() {
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     {
-      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
+        instance,
+        "vkDestroyDebugUtilsMessengerEXT"
+      );
       func(instance, debugMessenger, nullptr);
     }
     vkDestroyInstance(instance, nullptr);
