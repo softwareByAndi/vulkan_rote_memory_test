@@ -4,25 +4,23 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
 #include "lib/snippets/io_macros.h"
 #include "lib/snippets/useful_functions.h"
-
-#define debugEXT VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-#define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 
 GLFWwindow *window = nullptr;
 VkInstance instance;
 VkDebugUtilsMessengerEXT debugMessenger;
 std::vector<const char *> instanceEXT = {
-  macEXT,
-  debugEXT,
+  // "TEST_fake_extension",
+  VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME, // MAC
+  VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
   /*GLFW extensions go here*/
 };
 std::vector<const char *> instanceLAY = {
+  // "TEST_fake_extension",
+  "VK_LAYER_KHRONOS_validation",
 //  "VK_LAYER_LUNARG_api_dump",
 //  "VK_LAYER_KHRONOS_profiles",
-  "VK_LAYER_KHRONOS_validation",
 //  "VK_LAYER_KHRONOS_synchronization2",
 //  "VK_LAYER_KHRONOS_shader_object"
 };
@@ -35,6 +33,7 @@ std::vector<VkQueueFamilyProperties> queueFamilies{};
 uint32_t queueFamilyIndex = 0;
 float_t queuePriority = 1.0f;
 std::vector<const char *> deviceEXT = {
+  // "TEST_fake_extension",
   VK_KHR_SWAPCHAIN_EXTENSION_NAME,
   /* add "VK_KHR_portability_subset" if device supports it */
 };
@@ -59,7 +58,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   void*                                            pUserData
 ) {
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-    std::cerr << "DEBUG MESSENGER : " << pCallbackData->pMessage << std::endl;
+    std::cerr << RED << "DEBUG MESSENGER : " << pCallbackData->pMessage << RESET << std::endl;
   } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
     std::cout << YELLOW << "DEBUG MESSENGER : " << pCallbackData->pMessage << RESET << std::endl;
   } else {
@@ -78,18 +77,49 @@ int main () {
     }
     LOG_SUCCESS;
   }
+  SECTION("EXTENSIONS") {
+    uint32_t count = 0;
+    vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+    std::vector<VkExtensionProperties> availableExtensions(count);
+    vkEnumerateInstanceExtensionProperties(nullptr, &count, availableExtensions.data());
+    for (const auto &[extensionName, _v]: availableExtensions) {
+      if (UF::includes(instanceEXT, extensionName)) list_blue(extensionName);
+      else list_gray(extensionName);
+    }
+    bool extensionsNotFound = false;
+    for (const auto &extensionName : instanceEXT) {
+      if (!UF::includes(availableExtensions, extensionName)) {
+        extensionsNotFound = true;
+        list_red(extensionName);
+      }
+    }
+    if (extensionsNotFound) {
+      FAIL("required extensions not found");
+    }
+    LOG_SUCCESS;
+  }
+  SECTION("LAYERS") {
+    uint32_t count = 0;
+    vkEnumerateInstanceLayerProperties(&count, nullptr);
+    std::vector<VkLayerProperties> availableLayers(count);
+    vkEnumerateInstanceLayerProperties(&count, availableLayers.data());
+    for (const auto &[layerName, _x, _y, _z]: availableLayers) {
+      if (UF::includes(instanceLAY, layerName)) list_blue(layerName);
+      else list_gray(layerName);
+    }
+    bool layersNotFound = false;
+    for (const auto &layerName : instanceLAY) {
+      if (!UF::includes(availableLayers, layerName)) {
+        layersNotFound = true;
+        list_red(layerName);
+      }
+    }
+    if (layersNotFound) {
+      FAIL("required extensions not found");
+    }
+    LOG_SUCCESS;
+  }
   SECTION("INSTANCE") {
-    std::cout << BLUE << "  EXTENSIONS:" << RESET << std::endl;
-    for (const auto& ext : instanceEXT) {
-      list_blue(ext);
-    }
-    NEWLINE;
-    std::cout << BLUE << "  LAYERS:" << RESET << std::endl;
-    for (const auto& ext : instanceLAY) {
-      list_blue(ext);
-    }
-    NEWLINE;
-
     VkApplicationInfo ai{};
     ai.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     ai.pNext = VK_NULL_HANDLE;
@@ -109,12 +139,10 @@ int main () {
     info.enabledExtensionCount = instanceEXT.size();
     info.ppEnabledExtensionNames = instanceEXT.data();
 
-    auto result = vkCreateInstance(&info, nullptr, &instance);
-    if (result != VK_SUCCESS) {
+    if (VK_SUCCESS != vkCreateInstance(&info, nullptr, &instance)) {
       FAIL("failed to create instance");
-    } else {
-      LOG_SUCCESS;
     }
+    LOG_SUCCESS;
   }
   SECTION("DEBUG MESSENGER") {
     VkDebugUtilsMessengerCreateInfoEXT info{};
@@ -125,17 +153,14 @@ int main () {
     info.pfnUserCallback = debugCallback;
     info.pUserData = VK_NULL_HANDLE;
 
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-      auto result = func(instance, &info, nullptr, &debugMessenger);
-      if (result != VK_SUCCESS) {
-        FAIL("failed to create debug messenger");
-      } else {
-        LOG_SUCCESS;
-      }
-    } else {
+    const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
+    if (func == nullptr) {
       FAIL("unable to find function to create debug messenger");
     }
+    if (VK_SUCCESS != func(instance, &info, nullptr, &debugMessenger)) {
+        FAIL("failed to create debug messenger");
+    }
+    LOG_SUCCESS;
   }
   SECTION("PHYSICAL DEVICE") {
     uint32_t count = 0;
@@ -161,26 +186,32 @@ int main () {
     const bool supportsGeometryShader = physDeviceFeatures.geometryShader != 0;
     std::cout << "> " << physDeviceProperties.deviceName << " (" << deviceTypeLabel << ")" << std::endl;
     label_blue("geometryShader", supportsGeometryShader);
-    NEWLINE;
-
-    /// DEVICE EXTENSIONS
+    LOG_SUCCESS;
+  }
+  SECTION("DEVICE EXTENSIONS") {
+    uint32_t count = 0;
     vkEnumerateDeviceExtensionProperties(physDevice, nullptr, &count, nullptr);
-    std::vector<VkExtensionProperties> extProperties(count);
-    vkEnumerateDeviceExtensionProperties(physDevice, nullptr, &count, extProperties.data());
-
-    for (const auto & ext : extProperties) {
-      if (strcmp(ext.extensionName, "VK_KHR_portability_subset") == 0) {
+    std::vector<VkExtensionProperties> deviceExtensions(count);
+    vkEnumerateDeviceExtensionProperties(physDevice, nullptr, &count, deviceExtensions.data());
+    for (const auto &[extensionName, _v] : deviceExtensions) {
+      if (strcmp(extensionName, "VK_KHR_portability_subset") == 0) {
         deviceEXT.push_back("VK_KHR_portability_subset");
       }
     }
-    for (const auto& ext: extProperties) {
-      if (UF::includes(deviceEXT, ext.extensionName)) {
-        list_blue(ext.extensionName);
-      } else {
-        list_gray(ext.extensionName);
+    for (const auto&[extensionName, _v]: deviceExtensions) {
+      if (UF::includes(deviceEXT, extensionName)) list_blue(extensionName);
+      else list_gray(extensionName);
+    }
+    bool extensionsNotFound = false;
+    for (const auto& extensionName : deviceEXT) {
+      if (!UF::includes(deviceExtensions, extensionName)) {
+        extensionsNotFound = true;
+        list_red(extensionName);
       }
     }
-    NEWLINE;
+    if (extensionsNotFound) {
+      FAIL("required extensions not found");
+    }
     LOG_SUCCESS;
   }
   SECTION("PHYSICAL DEVICE QUEUE") {
@@ -193,9 +224,9 @@ int main () {
     }
     for (const auto & qf : queueFamilies) {
       label("queue count", qf.queueCount);
-      label_blue("compute    ", (bool)(qf.queueFlags & VK_QUEUE_COMPUTE_BIT));
-      label_blue("graphics   ", (bool)(qf.queueFlags & VK_QUEUE_GRAPHICS_BIT));
-      label_blue("transfer   ", (bool)(qf.queueFlags & VK_QUEUE_TRANSFER_BIT));
+      label_blue("compute    ", static_cast<bool>(qf.queueFlags & VK_QUEUE_COMPUTE_BIT));
+      label_blue("graphics   ", static_cast<bool>(qf.queueFlags & VK_QUEUE_GRAPHICS_BIT));
+      label_blue("transfer   ", static_cast<bool>(qf.queueFlags & VK_QUEUE_TRANSFER_BIT));
       NEWLINE;
     }
     queueFamilyIndex = 0;
@@ -221,12 +252,10 @@ int main () {
     info.ppEnabledExtensionNames = deviceEXT.data();
     info.pEnabledFeatures = &physDeviceFeatures;
 
-    auto result = vkCreateDevice(physDevice, &info, nullptr, &device);
-    if (result != VK_SUCCESS) {
+    if (VK_SUCCESS != vkCreateDevice(physDevice, &info, nullptr, &device)) {
       FAIL("unable to create device");
-    } else {
-      LOG_SUCCESS;
     }
+    LOG_SUCCESS;
   }
   SECTION("RETRIEVE QUEUE HANDLE") {
     /* there's nothing to use this handle on yet, so just adding it here as reference. */
@@ -235,11 +264,11 @@ int main () {
     LOG_SUCCESS;
   }
   SECTION("DESTROYING THE WORLD") {
-    //  glfwDestroyWindow(window);
     vkDestroyDevice(device, nullptr);
     {
-      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
-                                                                              "vkDestroyDebugUtilsMessengerEXT");
+      auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+        vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT")
+      );
       if (func != nullptr) {
         func(instance, debugMessenger, nullptr);
       }

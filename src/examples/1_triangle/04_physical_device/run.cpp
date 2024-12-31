@@ -5,14 +5,16 @@
 #include <iostream>
 #include <vector>
 #include <optional>
+#include "lib/snippets/io_macros.h";
+#include "lib/snippets/useful_functions.h";
 
-#define LOG_SUCCESS std::cout << "  - SUCCESS" << std::endl << std::endl
-#define LOG_FAILURE std::cout << "  - FAILURE" << std::endl << std::endl
-#define FAIL(x) LOG_FAILURE; throw std::runtime_error(x)
-#define NEWLINE std::cout << std::endl
-#define print(x) std::cout << x << std::endl
-#define list(x) std::cout << "  - " << x << std::endl
-#define DNL std::endl << std::endl;
+// #define LOG_SUCCESS std::cout << "  - SUCCESS" << std::endl << std::endl
+// #define LOG_FAILURE std::cout << "  - FAILURE" << std::endl << std::endl
+// #define FAIL(x) LOG_FAILURE; throw std::runtime_error(x)
+// #define NEWLINE std::cout << std::endl
+// #define print(x) std::cout << x << std::endl
+// #define list(x) std::cout << "  - " << x << std::endl
+// #define DNL std::endl << std::endl;
 
 #define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 VkInstance instance;
@@ -31,8 +33,7 @@ uint32_t queueFamilyIndex = 0;
 
 
 int main() {
-  {
-    print("CREATING INSTANCE");
+  SECTION("CREATING INSTANCE") {
     VkApplicationInfo ai{};
     ai.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     ai.pNext = nullptr;
@@ -52,16 +53,12 @@ int main() {
     info.enabledExtensionCount = reqEXT.size();
     info.ppEnabledExtensionNames = reqEXT.data();
 
-    auto result = vkCreateInstance(&info, nullptr, &instance);
-    if (result != VK_SUCCESS) {
+    if (VK_SUCCESS != vkCreateInstance(&info, nullptr, &instance)) {
       FAIL("failed to create instance");
     }
     LOG_SUCCESS;
   }
-
-
-  {
-    print("SELECTING PHYSICAL DEVICE");
+  SECTION("SELECTING PHYSICAL DEVICE") {
     uint32_t count = 0;
     vkEnumeratePhysicalDevices(instance, &count, nullptr);
     std::vector<VkPhysicalDevice> devices(count);
@@ -70,7 +67,6 @@ int main() {
       FAIL("failed to find a device");
     }
     physicalDevice = devices[0];
-    LOG_SUCCESS;
 
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
     vkGetPhysicalDeviceFeatures(physicalDevice, &features);
@@ -82,16 +78,14 @@ int main() {
     if (isCPU) deviceType = "CPU";
     if (isGPU) deviceType = "GPU";
     std::cout << "> " << properties.deviceName << std::endl;
-    std::cout << "  - deviceType : " << deviceType << std::endl;
-    std::cout << "  - geometryShader : " << features.geometryShader << std::endl;
+    label_blue("deviceType", deviceType);
+    label_blue("geometryShader", features.geometryShader);
     if (!isGPU) {
       FAIL("selected device is not a GPU");
     }
-    NEWLINE;
+    LOG_SUCCESS;
   }
-
-  {
-    print("QUEUE FAMILIES");
+  SECTION("QUEUE FAMILIES") {
     uint32_t count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
     queueFamilies.resize(count);
@@ -101,14 +95,16 @@ int main() {
     }
     for (const auto & family : queueFamilies) {
       const auto supportsGraphics = family.queueFlags & VK_QUEUE_GRAPHICS_BIT;
-      std::cout << "  - queue count : " << family.queueCount << std::endl;
-      std::cout << "  - supports graphics : " << supportsGraphics << std::endl;
+      label_blue("queue count", family.queueCount);
+      label_blue("supports graphics", supportsGraphics);
     }
     LOG_SUCCESS;
   }
 
 
-  print("DESTROYING THE WORLD");
-  vkDestroyInstance(instance, nullptr);
+  SECTION("DESTROYING THE WORLD") {
+    vkDestroyInstance(instance, nullptr);
+    LOG_SUCCESS;
+  }
   return EXIT_SUCCESS;
 }

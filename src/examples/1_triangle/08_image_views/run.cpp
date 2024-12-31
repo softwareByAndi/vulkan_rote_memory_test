@@ -2,7 +2,7 @@
 #include <vulkan/vulkan_core.h>
 #include <GLFW/glfw3.h>
 #include "lib/snippets/useful_functions.h"
-#include "lib/snippets/io_macros.h"
+#include "lib/snippets/vulkan_io.h"
 
 VkInstance instance;
 VkDebugUtilsMessengerEXT debugMessenger;
@@ -11,7 +11,7 @@ std::vector<const char *> instanceEXT {
   VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 };
 std::vector<const char *> instanceLAY {
-  // validation
+  "VK_LAYER_KHRONOS_validation"
 };
 std::vector<const char *> deviceEXT {
   "VK_KHR_portability_subset",
@@ -48,7 +48,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
     std::cout << GRAY << "VERBOSE - ";
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
-    std::cout << BLUE << "INFO - ";
+    std::cout << GRAY << "INFO - ";
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
     std::cout << YELLOW << "WARNING - ";
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
@@ -68,7 +68,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 int main() {
-  SECTION ("GLFW") {
+  SECTION("GLFW") {
     glfwInit();
     uint32_t count = 0;
     auto glfwEXT = glfwGetRequiredInstanceExtensions(&count);
@@ -77,6 +77,15 @@ int main() {
     }
   }
   SECTION("INSTANCE") {
+    print("  EXTENSIONS");
+    if (VK_SUCCESS != IO::checkInstanceExtensions(instanceEXT)) {
+      FAIL("missing required extensions");
+    }
+    print("  LAYERS");
+    if (VK_SUCCESS != IO::checkInstanceLayers(instanceLAY)) {
+      FAIL("missing required layers");
+    }
+
     VkApplicationInfo ai{};
     ai.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     ai.pApplicationName = "3";
@@ -106,21 +115,14 @@ int main() {
     info.messageType = 0xF;
     info.pfnUserCallback = debugCallback;
     info.pUserData = nullptr;
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-      if (VK_SUCCESS != func(instance, &info, nullptr, &debugMessenger)) {
-        FAIL("failed to create debug messenger");
-      }
-    } else {
+    const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+      vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT")
+    );
+    if (func == nullptr) {
       FAIL("failed to find create debug messenger function");
     }
-    LOG_SUCCESS;
-  }
-  SECTION("SURFACE") {
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    window = glfwCreateWindow(800, 600, "my window", nullptr, nullptr);
-    if (VK_SUCCESS != glfwCreateWindowSurface(instance, window, nullptr, &surface)) {
-      FAIL("failed to create surface");
+    if (VK_SUCCESS != func(instance, &info, nullptr, &debugMessenger)) {
+      FAIL("failed to create debug messenger");
     }
     LOG_SUCCESS;
   }
@@ -130,14 +132,14 @@ int main() {
     std::vector<VkPhysicalDevice> devices(count);
     vkEnumeratePhysicalDevices(instance, &count, devices.data());
     physicalDevice = devices[0];
+    VkPhysicalDeviceProperties pdProperties;
+    vkGetPhysicalDeviceProperties(physicalDevice, &pdProperties);
     vkGetPhysicalDeviceFeatures(physicalDevice, &pdFeatures);
 
-    VkBool32 is_supported = VK_FALSE;
-    vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, surface, &is_supported);
-    if (is_supported == VK_FALSE) {
-      FAIL("surface doesn't support default queue...");
-    } else {
-      list_blue("surface supports default queue");
+    list_blue(pdProperties.deviceName);
+    print("  EXTENSIONS");
+    if (VK_SUCCESS != IO::checkDeviceExtensions(physicalDevice, deviceEXT)) {
+      FAIL("missing required extensions");
     }
 
     VkDeviceQueueCreateInfo qi{};
@@ -162,14 +164,28 @@ int main() {
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &queue);
     LOG_SUCCESS;
   }
+  SECTION("SURFACE") {
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    window = glfwCreateWindow(800, 600, "my window", nullptr, nullptr);
+    if (VK_SUCCESS != glfwCreateWindowSurface(instance, window, nullptr, &surface)) {
+      FAIL("failed to create surface");
+    }
+    VkBool32 surfaceIsSupported;
+    vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, surface, &surfaceIsSupported);
+    if (surfaceIsSupported == VK_FALSE) {
+      FAIL("surface not supported for selected queue family");
+    }
+    list_blue("surface is supported");
+    LOG_SUCCESS;
+  }
   SECTION("SWAPCHAIN") {
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps);
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     // skipping clamp since I know the answer
-    swapExtent.width = (uint32_t) width;
-    swapExtent.height = (uint32_t) height;
+    swapExtent.width = static_cast<uint32_t>(width);
+    swapExtent.height = static_cast<uint32_t>(height);
 
     VkSwapchainCreateInfoKHR info{};
     info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -219,9 +235,8 @@ int main() {
 
       if (VK_SUCCESS != vkCreateImageView(device, &info, nullptr, &swapImageViews[i])) {
         FAIL("failed to create image view for image [" + std::to_string(i) + "]");
-      } else {
-        list_blue("created image view [" + std::to_string(i) + "]");
       }
+      list_blue("created image view [" + std::to_string(i) + "]");
     }
     LOG_SUCCESS;
   }
@@ -233,10 +248,18 @@ int main() {
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     {
-      auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-      func(instance, debugMessenger, nullptr);
+      const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+        vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT")
+      );
+      if (func != nullptr) {
+        func(instance, debugMessenger, nullptr);
+      } else {
+        error("failure to find vkDestroyDebugUtilsMessengerEXT");
+      }
     }
     vkDestroyInstance(instance, nullptr);
+    glfwDestroyWindow(window);
+    glfwTerminate();
     LOG_SUCCESS;
   }
   return EXIT_SUCCESS;

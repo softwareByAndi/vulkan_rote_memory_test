@@ -1,14 +1,36 @@
+#pragma once
 #include <vector>
 #include <string>
 #include <algorithm>
 
 namespace UF {
-bool includes(std::vector<const char *> v, const char *cmp) {
+inline bool includes(const std::vector<const char *> &v, const char *cmp) {
   // Use std::find_if and strcmp to compare contents
-  auto it = std::find_if(
-    v.begin(),
-    v.end(),
+  const auto it = std::ranges::find_if(
+    v,
     [cmp](const char *s) { return std::strcmp(s, cmp) == 0; }
+  );
+  return (it != v.end());
+}
+
+inline bool includes(const std::vector<VkExtensionProperties> &v, const char *cmp) {
+  // Use std::find_if and strcmp to compare contents
+  const auto it = std::ranges::find_if(
+    v,
+    [cmp](const VkExtensionProperties &ext) {
+      return std::strcmp(ext.extensionName, cmp) == 0;
+    }
+  );
+  return (it != v.end());
+}
+
+inline bool includes(const std::vector<VkLayerProperties> &v, const char *cmp) {
+  // Use std::find_if and strcmp to compare contents
+  const auto it = std::ranges::find_if(
+    v,
+    [cmp](const VkLayerProperties &lay) {
+      return std::strcmp(lay.layerName, cmp) == 0;
+    }
   );
   return (it != v.end());
 }

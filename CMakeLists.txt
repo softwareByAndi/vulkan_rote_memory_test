@@ -69,36 +69,24 @@ add_dependencies(main Shaders)
 
 # programmatically add example executables
 foreach (NAME
-        1_window
-        2_instance
-        3_validation_layers
-        4_physical_device
-        5_device
+        01_window
+        02_instance
+        03_validation_layers
+        04_physical_device
+        05_device
+        06_window_surface
+        07_swapchain
+        08_image_views
+        09_shaders
+        10_render_pass
+        11_pipeline
+#        12_framebuffer
+#        13_command_pool
+#        14_sync
+        15_draw
 )
     add_executable(
-            "1_setup_${NAME}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/1_setup/${NAME}/run.cpp"
-    )
-endforeach ()
-
-foreach (NAME
-        1_window_surface
-        2_swapchain
-        3_image_views
-)
-    add_executable(
-            "2_present_${NAME}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/2_presentation/${NAME}/run.cpp"
-    )
-endforeach ()
-
-foreach (NAME
-        1_shaders
-        2_render_pass
-        3_pipeline
-)
-    add_executable(
-            "3_pipeline_${NAME}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/3_pipeline/${NAME}/run.cpp"
+            "1_triangle_${NAME}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/1_triangle/${NAME}/run.cpp"
     )
 endforeach ()

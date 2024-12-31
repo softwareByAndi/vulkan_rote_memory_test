@@ -2,21 +2,13 @@
 #include <vulkan/vulkan.h>
 #include <iostream>
 #include <vector>
+#include "lib/snippets/io_macros.h";
 
-#define LOG_SUCCESS std::cout << "  - SUCCESS" << std::endl << std::endl
-#define LOG_FAILURE std::cerr << "  - FAILURE" << std::endl << std::endl
-#define NEWLINE std::cout << std::endl
-#define print(x) std::cout << x << std::endl
-#define error(x) std::cerr << x << std::endl
-#define list(x) std::cout << "  - " << x << std::endl
-
-#define debugEXT VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-#define macEXT VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 VkInstance instance;
 VkDebugUtilsMessengerEXT debugMessenger;
 std::vector<const char *> requiredInstanceExtensions = {
-  macEXT,
-  debugEXT
+  VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME, // MAC
+  VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 };
 std::vector<VkExtensionProperties> availableInstanceExtensions;
 std::vector<VkLayerProperties> availableInstanceLayers;
@@ -39,8 +31,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 int main() {
-  {
-    print("CREATING INSTANCE");
+  SECTION("CREATING INSTANCE") {
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pNext = VK_NULL_HANDLE;
@@ -60,18 +51,15 @@ int main() {
     info.enabledLayerCount = static_cast<uint32_t>(requestedInstanceValidationLayers.size());
     info.ppEnabledLayerNames = requestedInstanceValidationLayers.data();
 
-    VkResult result = vkCreateInstance(
+    const VkResult result = vkCreateInstance(
       &info, nullptr, &instance
     );
     if (result != VK_SUCCESS) {
-      LOG_FAILURE;
-      throw std::runtime_error("failed to create instance");
+      FAIL("failed to create instance");
     }
     LOG_SUCCESS;
   }
-
-  {
-    print("CREATING DEBUG MESSENGER");
+  SECTION("CREATING DEBUG MESSENGER") {
     VkDebugUtilsMessengerCreateInfoEXT info{};
     info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     info.pNext = VK_NULL_HANDLE;
@@ -83,39 +71,36 @@ int main() {
                        | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     info.pfnUserCallback = debugCallback;
     info.pUserData = nullptr;
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
-      instance,
-      "vkCreateDebugUtilsMessengerEXT"
+    const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+      vkGetInstanceProcAddr(instance,"vkCreateDebugUtilsMessengerEXT")
     );
     if (func != nullptr) {
-      VkResult result = func(
+      const VkResult result = func(
         instance,
         &info,
         nullptr,
         &debugMessenger
       );
       if (result != VK_SUCCESS) {
-        LOG_FAILURE;
-        throw std::runtime_error("failed to create instance");
+        FAIL("failed to create instance");
       }
     }
     else {
-      LOG_FAILURE;
-      throw std::runtime_error("  - ERROR : unable to find procAddr for vkCreateDebugUtilsMessengerEXT");
+      FAIL("  - ERROR : unable to find procAddr for vkCreateDebugUtilsMessengerEXT");
     }
     LOG_SUCCESS;
   }
 
-  print("DESTROYING THE WORLD");
-  {
-    /// DESTROY DEBUG UTILS
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
-      instance,
-      "vkDestroyDebugUtilsMessengerEXT"
-    );
-    if (func != nullptr) func(instance, debugMessenger, nullptr);
-    else error("  ! ERROR : unable to destroy debugMessenger");
+  SECTION("DESTROYING THE WORLD") {
+    {
+      const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+        vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT")
+      );
+      if (func != nullptr) func(instance, debugMessenger, nullptr);
+      else error("  ! ERROR : unable to destroy debugMessenger");
+    }
+    vkDestroyInstance(instance, nullptr);
+    LOG_SUCCESS;
   }
-  vkDestroyInstance(instance, nullptr);
   return EXIT_SUCCESS;
 }

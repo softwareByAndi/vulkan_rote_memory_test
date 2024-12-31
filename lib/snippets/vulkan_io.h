@@ -1,6 +1,8 @@
+#pragma once
 #include <vulkan/vulkan_core.h>
-#include "ascii_colors.h"
 #include <iostream>
+#include <lib/snippets/io_macros.h>
+#include "lib/snippets/useful_functions.h"
 
 namespace IO {
 
@@ -33,4 +35,55 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   std::cout << pCallbackData->pMessage << RESET << std::endl;
   return VK_FALSE;
 }
+
+template <typename T>
+VkResult checkVkEnumeration(
+  const std::vector<T> &available,
+  const std::vector<const char *> &required
+) {
+  bool missingRequired = false;
+  for (const auto& _name : required) {
+    if (UF::includes(available, _name)) {
+      list_blue(_name);
+    }
+    else {
+      missingRequired = true;
+      list_red(_name);
+    }
+  }
+  if (missingRequired) {
+    return VK_INCOMPLETE;
+  }
+  return VK_SUCCESS;
+}
+
+inline VkResult checkInstanceExtensions(
+  const std::vector<const char *> &requiredExtensions
+) {
+  uint32_t count = 0;
+  vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+  std::vector<VkExtensionProperties> availableExtensions(count);
+  vkEnumerateInstanceExtensionProperties(nullptr, &count, availableExtensions.data());
+  return checkVkEnumeration<VkExtensionProperties>(availableExtensions, requiredExtensions);
+}
+inline VkResult checkInstanceLayers(
+  const std::vector<const char *> &requiredLayers
+) {
+  uint32_t count = 0;
+  vkEnumerateInstanceLayerProperties(&count, nullptr);
+  std::vector<VkLayerProperties> availableLayers(count);
+  vkEnumerateInstanceLayerProperties(&count, availableLayers.data());
+  return checkVkEnumeration<VkLayerProperties>(availableLayers, requiredLayers);
+}
+inline VkResult checkDeviceExtensions(
+  const VkPhysicalDevice &physicalDevice,
+  const std::vector<const char *> &requiredExtensions
+) {
+  uint32_t count = 0;
+  vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, nullptr);
+  std::vector<VkExtensionProperties> availableExtensions(count);
+  vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, availableExtensions.data());
+  return checkVkEnumeration<VkExtensionProperties>(availableExtensions, requiredExtensions);
+}
+
 }
