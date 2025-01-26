@@ -1,0 +1,15 @@
+{
+  "extensions": [
+    "cpp",
+    "json",
+    "frag",
+    "vert"
+  ],
+  "folding": true,
+  "lineNumbers": true,
+  "minimap": true,
+  "semanticValidation": true,
+  "syntaxValidation": true,
+  "theme": "default",
+  "overwriteBg": true
+}

@@ -1,0 +1,212 @@
+
+/*
+----------------------------------------------
+Theme Light
+----------------------------------------------
+*/
+
+/*Titles and Headers*/
+body {
+    --andi-color-primary: rgb(196, 78, 78);
+}
+.theme-dark {
+    --andi-color-primary: rgb(221, 121, 121);
+}
+
+body {
+    --h1-size: 2.6em;
+    --h2-size: 1.9em;
+    --h3-size: 1.5em;
+    --h4-size: 1.1em;
+    --h5-size: 1em;
+    --h6-size: 0.85em;
+
+    --h1-weight: 200;
+    --h2-weight: 400;
+    --h3-weight: 200;
+    --h4-weight: 400;
+    --h5-weight: 200;
+    --h6-weight: 200;
+
+    --h1-color: var(--andi-color-primary);
+    --h2-color: var(--andi-color-primary);
+    --h3-color: var(--andi-color-primary);
+    --h4-color: var(--andi-color-primary);
+    --h5-color: var(--andi-color-primary);
+    --h6-color: var(--andi-color-primary);
+}
+div.inline-title {
+    font-size: 1.6em;
+    font-weight: 200;
+}
+
+/*Links*/
+.metadata-link-inner.internal-link,
+.metadata-link-inner.external-link,
+span.cm-hmd-internal-link,
+span.cm-url,
+span.cm-hmd-internal-link a,
+span.cm-url a,
+a.internal-link,
+a.external-link
+{
+    color: rgb(228, 26, 26);
+    font-weight: 600;
+}
+span.cm-hmd-internal-link a.cm-underline,
+a.internal-link
+{
+    text-decoration: none !important;
+}
+
+/*Text Styles*/
+span.cm-strong {
+    color: rgb(133, 17, 17);
+    font-weight: 700;
+}
+span.cm-em {
+    color: rgb(185, 185, 185);
+}
+span.cm-em.cm-strong {
+    color: rgb(161, 161, 161);
+}
+
+/*Checkboxes*/
+input[type="checkbox"]:checked {
+    background-color: rgb(196, 78, 78);
+    border-color: rgb(196, 78, 78);
+}
+
+/*File Property Tags*/
+.cm-hashtag, 
+a.tag,
+.dataview-frontmatter td ul li a
+{
+    background-color: rgb(161, 17, 17);
+    color: white;
+}
+.multi-select-pill,
+.multi-select-pill:hover
+{
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    color: black;
+}
+[data-property-key="tags"] .multi-select-pill-content
+{
+    overflow-y:hidden;
+    height: 1.2rem;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: center;
+}
+[data-property-key="tags"] .multi-select-pill span
+{
+    padding: 0.1rem 0.6rem !important;
+    background-color: rgba(220, 9, 9, 0.1);
+    color: #dc0909;
+}
+
+/*Tags - in the Wild*/
+.cm-tag-STATUS-DEPLOYED,
+a.tag[href="#STATUS-DEPLOYED"],
+.dataview-frontmatter td ul li a[href="#STATUS-DEPLOYED"] 
+{
+    background-color: rgb(85, 143, 99);
+    color: white;
+}
+.cm-tag-STATUS-QA,
+a.tag[href="#STATUS-QA"],
+.dataview-frontmatter td ul li a[href="#STATUS-QA"] 
+{
+    background-color: rgb(108, 97, 204);
+    color: white;
+}
+.cm-tag-STATUS-BLOCKED,
+a.tag[href="#STATUS-BLOCKED"],
+.dataview-frontmatter td ul li a[href="#STATUS-BLOCKED"] 
+{
+    background-color: rgb(34, 34, 34);
+    color: white;
+}
+.cm-tag-QUESTION,
+a.tag[href="#QUESTION"],
+.dataview-frontmatter td ul li a[href="#QUESTION"] 
+{
+    background-color: rgb(222, 235, 39);
+    color: rgb(96, 102, 8);
+    font-weight: 700;
+}
+.cm-tag-TODO,
+a.tag[href="#TODO"],
+.dataview-frontmatter td ul li a[href="#TODO"] 
+{
+    background-color: rgb(209, 115, 115);
+    color: white;
+}
+
+
+
+
+
+
+/*
+----------------------------------------------
+Theme Dark
+----------------------------------------------
+*/
+
+/*Titles and Headers*/
+
+/*Links*/
+.theme-dark .metadata-link-inner.internal-link,
+.theme-dark .metadata-link-inner.external-link,
+.theme-dark span.cm-hmd-internal-link,
+.theme-dark span.cm-url,
+.theme-dark span.cm-hmd-internal-link a,
+.theme-dark span.cm-url a,
+.theme-dark a.internal-link,
+.theme-dark a.external-link
+{
+    color: rgb(190, 68, 68) !important;
+}
+
+/*Text Styles*/
+.theme-dark span.cm-strong {
+    /* color: rgb(126, 51, 51); */
+    color: rgb(255, 255, 255);
+}
+.theme-dark span.cm-em {
+    color: rgb(117, 117, 117);
+}
+.theme-dark span.cm-em.cm-strong {
+    color: rgb(138, 138, 138);
+}
+
+/*Checkboxes*/
+.theme-dark input[type="checkbox"]:checked {
+    background-color: rgb(119, 46, 46);
+    border-color: rgb(119, 46, 46);
+}
+
+/*File Property Tags*/
+.theme-dark .multi-select-pill,
+.theme-dark .multi-select-pill:hover
+{
+    color: rgb(199, 199, 199);
+}
+.theme-dark [data-property-key="tags"] .multi-select-pill span
+{
+    background-color: rgba(231, 81, 81, 0.4);
+    color: #d3b9b9;
+}
+
+/*Tags - in the Wild*/
+.theme-dark .cm-tag-STATUS-BLOCKED,
+.theme-dark a.tag[href="#STATUS-BLOCKED"],
+.theme-dark .dataview-frontmatter td ul li a[href="#STATUS-BLOCKED"] 
+{
+    background-color: rgb(187, 187, 187);
+    color: rgb(27, 27, 27);
+    font-weight: 700;
+}
